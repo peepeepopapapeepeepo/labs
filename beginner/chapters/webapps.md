@@ -202,10 +202,10 @@ app = Flask(__name__)
 
 # list of cat images
 images = [
-    "https://media.giphy.com/media/fXgKfzV4aaHQI/giphy.gif",
-    "https://media.giphy.com/media/BzyTuYCmvSORqs1ABM/giphy.gif",
-    "https://media.giphy.com/media/nR4L10XlJcSeQ/giphy.gif",
-    "https://media.giphy.com/media/VbnUQpnihPSIgIXuZv/giphy.gif"
+    "/static/fXgKfzV4aaHQI.gif",
+    "/static/BzyTuYCmvSORqs1ABM.gif",
+    "/static/nR4L10XlJcSeQ.gif",
+    "/static/VbnUQpnihPSIgIXuZv.gif"
 ]
 
 @app.route('/')
@@ -277,7 +277,8 @@ A [Dockerfile](https://docs.docker.com/engine/reference/builder/) is a text file
 2. The next step usually is to write the commands of copying the files and installing the dependencies. But first we will install the Python pip package to the alpine linux distribution. This will not just install the pip package but any other dependencies too, which includes the python interpreter. Add the following [RUN](https://docs.docker.com/engine/reference/builder/#run) command next:
 
   ```
-  RUN apk add --update py2-pip
+  RUN apk add --update --no-cache py2-pip ca-certificates wget && \
+      update-ca-certificates
   ```
 
 3. Let's add the files that make up the Flask Application.
@@ -294,6 +295,16 @@ A [Dockerfile](https://docs.docker.com/engine/reference/builder/) is a text file
   ```
   COPY app.py /usr/src/app/
   COPY templates/index.html /usr/src/app/templates/
+  ```
+  
+  Download asset
+  
+  ```
+  RUN mkdir /usr/src/app/static/ && \
+      wget -O /usr/src/app/static/fXgKfzV4aaHQI.gif https://media.giphy.com/media/fXgKfzV4aaHQI/giphy.gif && \
+      wget -O /usr/src/app/static/BzyTuYCmvSORqs1ABM.gif https://media.giphy.com/media/BzyTuYCmvSORqs1ABM/giphy.gif && \
+      wget -O /usr/src/app/static/nR4L10XlJcSeQ.gif https://media.giphy.com/media/nR4L10XlJcSeQ/giphy.gif && \
+      wget -O /usr/src/app/static/VbnUQpnihPSIgIXuZv.gif https://media.giphy.com/media/VbnUQpnihPSIgIXuZv/giphy.gif
   ```
 
 4. Specify the port number which needs to be exposed. Since our flask app is running on `5000` that's what we'll expose.
@@ -319,7 +330,8 @@ A [Dockerfile](https://docs.docker.com/engine/reference/builder/) is a text file
   FROM alpine:3.5
 
   # Install python and pip
-  RUN apk add --update py2-pip
+  RUN apk add --update --no-cache py2-pip ca-certificates wget && \
+      update-ca-certificates
 
   # install Python modules needed by the Python app
   COPY requirements.txt /usr/src/app/
@@ -329,6 +341,13 @@ A [Dockerfile](https://docs.docker.com/engine/reference/builder/) is a text file
   COPY app.py /usr/src/app/
   COPY templates/index.html /usr/src/app/templates/
 
+  # Download assets
+  RUN mkdir /usr/src/app/static/ && \
+      wget -O /usr/src/app/static/fXgKfzV4aaHQI.gif https://media.giphy.com/media/fXgKfzV4aaHQI/giphy.gif && \
+      wget -O /usr/src/app/static/BzyTuYCmvSORqs1ABM.gif https://media.giphy.com/media/BzyTuYCmvSORqs1ABM/giphy.gif && \
+      wget -O /usr/src/app/static/nR4L10XlJcSeQ.gif https://media.giphy.com/media/nR4L10XlJcSeQ/giphy.gif && \
+      wget -O /usr/src/app/static/VbnUQpnihPSIgIXuZv.gif https://media.giphy.com/media/VbnUQpnihPSIgIXuZv/giphy.gif
+    
   # tell the port number the container should expose
   EXPOSE 5000
 
